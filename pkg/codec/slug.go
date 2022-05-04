@@ -36,6 +36,10 @@ func (x Slug) Encode() string {
 	return strings.ToLower(out)
 }
 
+func (x Slug) EncodeAll() string {
+	return x.Encode()
+}
+
 func (x Slug) Decode() string {
 	return strings.Join(strings.Split(x.Source(), "-"), " ")
 }
