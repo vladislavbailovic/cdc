@@ -11,12 +11,12 @@ import (
 func main() {
 	options := opts.New(os.Args[1:])
 	if options.HasFlag(opts.Help) {
-		fmt.Println(opts.GetHelp())
+		fmt.Println(cmd.GetHelp())
 		os.Exit(0)
 	}
 
 	if options.HasFlag(opts.Version) {
-		fmt.Println(opts.GetVersion())
+		fmt.Println(cmd.GetVersion())
 		os.Exit(0)
 	}
 
@@ -26,7 +26,7 @@ func main() {
 	}
 
 	if len(subject) == 0 {
-		fmt.Fprintf(os.Stderr, opts.GetHelp())
+		fmt.Fprintf(os.Stderr, cmd.GetHelp())
 		os.Exit(1)
 	}
 

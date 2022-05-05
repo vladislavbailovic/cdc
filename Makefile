@@ -3,7 +3,7 @@ SOURCES := $(shell find . -type f -name '*.go')
 GITHASH=$(shell git rev-list -1 HEAD)
 DATE=$(shell date +'%FT%TZ%:z')
 
-FLAGS="-X komunalno/cdc/pkg/opts.GitCommitHash=$(GITHASH) -X komunalno/cdc/pkg/opts.BuildDate=$(DATE)"
+FLAGS="-X komunalno/cdc/cmd.GitCommitHash=$(GITHASH) -X komunalno/cdc/cmd.BuildDate=$(DATE)"
 
 .PHONY: test
 test: $(SOURCES) go.sum
