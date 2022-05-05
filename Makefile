@@ -5,6 +5,9 @@ DATE=$(shell date +'%FT%TZ%:z')
 
 FLAGS="-X komunalno/cdc/cmd.GitCommitHash=$(GITHASH) -X komunalno/cdc/cmd.BuildDate=$(DATE)"
 
+cdc: $(SOURCES) go.sum
+	go build -ldflags $(FLAGS)
+
 .PHONY: test
 test: $(SOURCES) go.sum
 	go test ./... -v
@@ -22,9 +25,6 @@ coverage.out: $(SOURCES)
 
 go.sum: go.mod
 	go mod tidy
-
-cdc: $(SOURCES) go.sum
-	go build -ldflags $(FLAGS)
 
 .PHONY: install
 install: cdc
