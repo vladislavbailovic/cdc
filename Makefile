@@ -1,5 +1,10 @@
 SOURCES := $(shell find . -type f -name '*.go')
 
+GITHASH=$(shell git rev-list -1 HEAD)
+DATE=$(shell date +'%FT%TZ%:z')
+
+FLAGS="-X komunalno/cdc/pkg/opts.GitCommitHash=$(GITHASH) -X komunalno/cdc/pkg/opts.BuildDate=$(DATE)"
+
 .PHONY: test
 test: $(SOURCES) go.sum
 	go test ./... -v
@@ -18,24 +23,9 @@ coverage.out: $(SOURCES)
 go.sum: go.mod
 	go mod tidy
 
-grpc/loader.pb.go: grpc/loader.proto
-	protoc --go_out=. grpc/loader.proto
+cdc: $(SOURCES) go.sum
+	go build -ldflags $(FLAGS)
 
-grpc/loader_grpc.pb.go: grpc/loader.proto
-	protoc --go-grpc_out=. grpc/loader.proto
-
-.PHONY: serve
-serve: build/kog-server
-	./build/kog-server
-
-build/kog-server: $(SOURCES) grpc/loader.pb.go grpc/loader_grpc.pb.go
-	go build -o build/kog-server cmd/grpc/server/main.go
-
-.PHONY: ping
-ping: build/kog-client build/kog-server
-	./build/kog-server &
-	./build/kog-client
-	killall kog-server
-
-build/kog-client: $(SOURCES) grpc/loader.pb.go grpc/loader_grpc.pb.go
-	go build -o build/kog-client cmd/grpc/client/main.go
+.PHONY: install
+install: cdc
+	go install -ldflags $(FLAGS)

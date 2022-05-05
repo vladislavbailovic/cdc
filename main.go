@@ -2,10 +2,19 @@ package main
 
 import (
 	"fmt"
-	"komunalno/cdc/pkg/codec"
+	"komunalno/cdc/pkg/opts"
+	"os"
 )
 
 func main() {
-	x := codec.Html("T&#x25;e&#x3C;s&#x3E;tI&#x22;n&#x27;gString")
-	fmt.Println(x.Decode())
+	options := opts.New(os.Args[1:])
+	if options.HasFlag(opts.Help) {
+		fmt.Println(opts.GetHelp())
+		os.Exit(0)
+	}
+
+	if options.HasFlag(opts.Version) {
+		fmt.Println(opts.GetVersion())
+		os.Exit(0)
+	}
 }
