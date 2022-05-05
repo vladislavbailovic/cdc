@@ -25,6 +25,11 @@ func main() {
 		subject = options.Subject()
 	}
 
+	if len(subject) == 0 {
+		fmt.Fprintf(os.Stderr, opts.GetHelp())
+		os.Exit(1)
+	}
+
 	var cdc codec.Codec
 	if options.HasFlag(opts.Xml) {
 		cdc = codec.Html(subject)
