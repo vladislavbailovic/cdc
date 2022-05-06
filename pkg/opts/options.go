@@ -1,6 +1,8 @@
 package opts
 
-import "strings"
+import (
+	"strings"
+)
 
 type Options struct {
 	options Flag
@@ -11,39 +13,78 @@ func New(flags []string) Options {
 	options := addFlag(Encode, Url)
 	rest := []string{}
 	for _, f := range flags {
-		switch f {
-		case "-u", "--url":
-			options = clearFlag(options, Xml)
-			options = clearFlag(options, Slug)
-			options = addFlag(options, Url)
-		case "-x", "--xml":
-			options = clearFlag(options, Url)
-			options = clearFlag(options, Slug)
-			options = addFlag(options, Xml)
-		case "-s", "--slug":
-			options = clearFlag(options, Url)
-			options = clearFlag(options, Xml)
-			options = addFlag(options, Slug)
-		case "-e", "--encode":
-			options = clearFlag(options, Decode)
-			options = addFlag(options, Encode)
-		case "-d", "--decode":
-			options = clearFlag(options, Encode)
-			options = addFlag(options, Decode)
-		case "-a", "--all":
-			options = addFlag(options, AllChars)
-		case "-h", "--help":
-			options = addFlag(options, Help)
-		case "-v", "--version":
-			options = addFlag(options, Version)
-		default:
+		if string(f[0]) == "-" {
+			options = parseOption(f, options)
+		} else {
 			rest = append(rest, f)
 		}
+		continue
 	}
 	return Options{
 		options: options,
 		rest:    rest,
 	}
+}
+
+func parseOption(opt string, options Flag) Flag {
+	if string(opt[1]) == "-" {
+		return parseLongOption(opt, options)
+	}
+	return parseShortOption(opt, options)
+}
+
+func parseLongOption(opt string, options Flag) Flag {
+	switch opt {
+	case "--url":
+		options = setFlag(options, Url, Slug, Xml)
+	case "--xml":
+		options = setFlag(options, Xml, Url, Slug)
+	case "--slug":
+		options = setFlag(options, Slug, Xml, Url)
+	case "--encode":
+		options = setFlag(options, Encode, Decode)
+	case "--decode":
+		options = setFlag(options, Decode, Encode)
+	case "--all":
+		options = addFlag(options, AllChars)
+	case "--help":
+		options = addFlag(options, Help)
+	case "--version":
+		options = addFlag(options, Version)
+	}
+	return options
+}
+
+func parseShortOption(opt string, options Flag) Flag {
+	for _, flag := range []rune(opt) {
+		switch string(flag) {
+		case "u":
+			options = setFlag(options, Url, Slug, Xml)
+		case "x":
+			options = setFlag(options, Xml, Url, Slug)
+		case "s":
+			options = setFlag(options, Slug, Xml, Url)
+		case "e":
+			options = setFlag(options, Encode, Decode)
+		case "d":
+			options = setFlag(options, Decode, Encode)
+		case "a":
+			options = addFlag(options, AllChars)
+		case "h":
+			options = addFlag(options, Help)
+		case "v":
+			options = addFlag(options, Version)
+		}
+	}
+	return options
+}
+
+func setFlag(options Flag, which Flag, clears ...Flag) Flag {
+	for _, c := range clears {
+		options = clearFlag(options, c)
+	}
+	options = addFlag(options, which)
+	return options
 }
 
 func (x Options) HasFlag(which Flag) bool {
